@@ -1,4 +1,4 @@
-import{B as n,r as l,u as c,g as p}from"./index-DoZk3hUd.js";class g extends n{mount(){const d=this.html`
+import{B as n,r as l,u as c,g as p}from"./index-gKM1Dzx3.js";class g extends n{mount(){const d=this.html`
       <section class="panel" aria-labelledby="title">
         <h1 id="title">Cerita tersimpan</h1>
         <p class="muted">Cerita yang kamu simpan dari beranda (disimpan di <code>IndexedDB</code>).</p>

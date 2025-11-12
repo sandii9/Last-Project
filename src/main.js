@@ -24,13 +24,12 @@ function guardAuth(to) {
 }
 router.beforeEach = (to)=> guardAuth(to);
 
-router.register('/login', (outlet)=> new LoginPresenter(outlet, authModel).mount());
-router.register('/register', (outlet)=> new RegisterPresenter(outlet, authModel).mount());
-router.register('/home', (outlet)=> new HomePresenter(outlet, storyModel).mount());
-router.register('/map', (outlet)=> new MapPresenter(outlet, storyModel).mount());
-router.register('/saved', (outlet)=> import('./views/SavedView.js').then(m=> new m.SavedView(outlet).mount()));
-
-router.register('/add', (outlet)=> new AddPresenter(outlet, storyModel).mount());
+router.register('/login',   (outlet)=> new LoginPresenter(outlet, authModel).mount());
+router.register('/register',(outlet)=> new RegisterPresenter(outlet, authModel).mount());
+router.register('/home',    (outlet)=> new HomePresenter(outlet, storyModel).mount());
+router.register('/map',     (outlet)=> new MapPresenter(outlet, storyModel).mount());
+router.register('/saved',   (outlet)=> import('./views/SavedView.js').then(m=> new m.SavedView(outlet).mount()));
+router.register('/add',     (outlet)=> new AddPresenter(outlet, storyModel).mount());
 
 const logoutBtn = document.getElementById('logoutBtn');
 function syncNav(){
@@ -55,30 +54,87 @@ withViewTransition(()=>{
   if (!location.hash) location.hash = '#/login';
 })();
 
-import { ensureSWRegistered, subscribePush, unsubscribePush } from './utils/push';
+import { ensureSWRegistered, getExistingSubscription, subscribePush, unsubscribePush } from './utils/push';
 import { fixLeafletIcons } from './utils/leafletIcons';
 
 ensureSWRegistered();
 fixLeafletIcons();
 
+/**
+ * Toggle Push:
+ * - Inisialisasi label sesuai status subscription
+ * - Saat subscribe, wajib POST ke /notifications/subscribe dengan Bearer token
+ */
 const __bindPushToggle = () => {
   const btn = document.querySelector('#toggle-push');
   if (!btn) return;
+
+  // Set label awal (Aktifkan/Matikan) sesuai subscription yang ada
+  (async () => {
+    try {
+      const sub = await getExistingSubscription();
+      btn.dataset.active = sub ? '1' : '0';
+      btn.textContent = sub ? 'Matikan Notifikasi' : 'Aktifkan Notifikasi';
+    } catch {
+      btn.dataset.active = '0';
+      btn.textContent = 'Aktifkan Notifikasi';
+    }
+  })();
+
   btn.addEventListener('click', async () => {
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
+
       if (sub) {
+        // Unsubscribe
         await unsubscribePush();
+        btn.dataset.active = '0';
+        btn.textContent = 'Aktifkan Notifikasi';
         alert('Langganan notifikasi dimatikan');
-      } else {
-        const s = await subscribePush(import.meta?.env?.VITE_VAPID_PUBLIC_KEY || null);
-        // TODO: kirim 's' ke server API kamu
-        alert('Langganan notifikasi diaktifkan');
+        return;
       }
+
+      // Subscribe baru -> butuh token login untuk dikirim ke server
+      const token = authModel.getToken();
+      if (!token) {
+        alert('Silakan login terlebih dahulu untuk mengaktifkan notifikasi');
+        return;
+      }
+
+      // ⬇️ PENTING: panggil subscribePush dengan OBJECT { apiBase, authToken }
+      await subscribePush({
+        apiBase,               // 'https://story-api.dicoding.dev/v1'
+        authToken: token,      // Bearer <token>
+      });
+
+      btn.dataset.active = '1';
+      btn.textContent = 'Matikan Notifikasi';
+      alert('Langganan notifikasi diaktifkan');
     } catch (e) {
       alert('Gagal mengatur notifikasi: ' + e.message);
     }
   });
 };
 window.addEventListener('load', __bindPushToggle);
+
+// ====== A2HS (Install PWA) ======
+let __deferredInstall;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  __deferredInstall = e;
+  const ib = document.getElementById('installBtn');
+  if (ib) ib.style.display = 'inline-flex';
+});
+function __bindInstallBtn(){
+  const ib = document.getElementById('installBtn');
+  if (!ib) return;
+  ib.addEventListener('click', async () => {
+    if (!__deferredInstall) return;
+    __deferredInstall.prompt();
+    await __deferredInstall.userChoice;
+    __deferredInstall = null;
+    ib.style.display = 'none';
+  });
+}
+window.addEventListener('load', __bindInstallBtn);
