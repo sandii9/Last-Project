@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta name="theme-color" content="#008080"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media Cerita</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#12172b; --text:#e9edf5; --muted:#a5afc6; --brand:#7c9bff; --accent:#50e3c2; --danger:#ff6b6b; --focus:#ffd166; --radius:16px; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--text);
+      background:radial-gradient(1200px 800px at 10% -10%,#1b2150,transparent 50%),radial-gradient(800px 600px at 100% 0%,#123,transparent 50%),var(--bg);line-height:1.6}
+    a{color:var(--brand)} img{max-width:100%;display:block}
+    .skip-link{position:absolute;left:-9999px;top:-9999px;background:var(--focus);color:#111;padding:.5rem .75rem;border-radius:8px}
+    .skip-link:focus{left:1rem;top:1rem;z-index:1000}
+    header{position:sticky;top:0;z-index:50;backdrop-filter:blur(6px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid #223}
+    .nav{display:grid;grid-template-columns:1fr auto;gap:1rem;max-width:1100px;margin:0 auto;padding:.75rem 1rem;align-items:center}
+    .brand{font-weight:700;letter-spacing:.4px}
+    nav a,button.link{appearance:none;background:none;border:none;color:var(--text);text-decoration:none;padding:.5rem .75rem;border-radius:999px}
+    nav a[aria-current="page"]{background:#1e2546}
+    main{max-width:1100px;padding:1rem;margin:0 auto}
+    .card{background:linear-gradient(180deg,#151b37,#0e1326);border:1px solid #1f264d;border-radius:var(--radius);box-shadow:0 8px 30px rgba(0,0,0,.25);padding:1rem}
+    .grid{display:grid;gap:1rem}
+    @media (min-width:768px){.grid.cols-2{grid-template-columns:1fr 1fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}}
+    label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:.35rem}
+    input,textarea,select,button{font:inherit}
+    input[type="text"],input[type="email"],input[type="password"],input[type="file"],textarea{width:100%;padding:.7rem .8rem;border-radius:12px;background:#0b1130;color:var(--text);border:1px solid #253063}
+    .row{display:grid;gap:.75rem}@media (min-width:768px){.row.two{grid-template-columns:1fr 1fr}}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:999px;border:1px solid #2c3570;background:#1a2150;color:var(--text);cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--brand),#9bb3ff);color:#0b1020;border:none}
+    .btn.danger{background:var(--danger);color:#111;border:none}
+    .btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+    .muted{color:var(--muted)}
+    .stories{display:grid;gap:1rem}
+    .story{display:grid;gap:.5rem;grid-template-columns:96px 1fr}
+    .story img{width:96px;height:96px;object-fit:cover;border-radius:12px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    @keyframes softScaleIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .vt-enter{animation:softScaleIn .35s ease}
+    #map,.map-embed{width:100%;height:420px;border-radius:var(--radius);overflow:hidden}
+    .leaflet-container{background:#0b1020}
+    .legend{font-size:.875rem;color:var(--muted)}
+    footer{padding:2rem 1rem;color:var(--muted);text-align:center}
+  
+#toggle-push, #installBtn { position:fixed; right:16px; padding:12px 16px; border:none; border-radius:999px; font-weight:600; cursor:pointer; box-shadow:0 10px 25px rgba(0,0,0,.3); transition:transform .2s ease, box-shadow .2s ease, background .2s ease; }
+#toggle-push { bottom:16px; background:#0ea5e9; color:white; }
+#toggle-push[data-active="1"] { background:#ef4444; }
+#toggle-push:hover, #installBtn:hover { transform:translateY(-2px); box-shadow:0 14px 30px rgba(0,0,0,.35); }
+#installBtn { bottom:76px; background:#10b981; color:white; display:none; }
+</style>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <script type="module" crossorigin src="./assets/index-gKM1Dzx3.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CIGW-MKW.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Lewati ke konten utama</a>
+  <header role="banner">
+    <div class="nav" role="navigation" aria-label="Navigasi utama">
+      <div class="brand">📍 Media Cerita</div>
+      <nav id="topnav">
+        <a href="#/home" data-link>Beranda</a>
+        <a href="#/map" data-link>Peta</a>
+        <a href="#/add" data-link>Tambah</a>
+        <a href="#/saved" data-link>Cerita tersimpan</a>
+        <a href="#/login" data-link>Login</a>
+        <button class="link" id="logoutBtn" aria-label="Keluar" hidden>Logout</button>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1" role="main" aria-live="polite"></main>
+  <footer><p class="legend">Belajar Pengembangan Web Intermediate — Proyek Awal</p></footer>
+
+
+<button id="toggle-push" class="link" type="button" aria-label="Aktifkan Notifikasi">🔔&nbsp;<span>Aktifkan Notifikasi</span></button>
+<button id="installBtn" class="link" type="button" aria-label="Install App">⬇️&nbsp;<span>Install App</span></button>
+</body>
+</html>
